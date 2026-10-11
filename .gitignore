@@ -21,7 +21,9 @@ notes.md
 temp/
 *.slurm
 results/
-notebooks/
+notebooks/*
+!notebooks/colab_select.ipynb
+!notebooks/colab_20gb_1h_compare.ipynb
 .DS_Store
 data/
 checkpoints/

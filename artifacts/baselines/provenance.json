@@ -1,0 +1,13 @@
+{
+  "verified_round2": false,
+  "archives": [
+    {
+      "path": "artifacts/baselines/local_submission.zip",
+      "sha256": "29db8588ee6bb6e80c85905410530c166a4abf4f5711c2d5e1b20dadf9f1e51e"
+    },
+    {
+      "path": "artifacts/baselines/local_champion.zip",
+      "sha256": "9b55bb44832d2ee4bfcd7d75b291ff2bc56a891fc30d5ac16f21f55f475041e5"
+    }
+  ]
+}

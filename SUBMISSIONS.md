@@ -189,3 +189,29 @@ print('OK donor round-trip within 1e-4')
 - **`set_penalty_fn` custom callable breaks `to_spec()`** → `core.set_penalty` only permits registered presets.
 - **Early return forfeits budget** (`oneday` in round 1: 98 %) → every entry uses `run_to_wire` and catches exceptions inside phases.
 - **Tied length groups in `optimization_pairs`** (nested lists) → `name_gen.canonical_key` reduces to the first pair's name.
+
+---
+
+# Second generation: n1–n4
+
+See `METHODS_N.md` for the full rationale. Short version: every first-generation entry
+(and every organiser baseline) optimises in **sigmoid** space, where the gradient of a
+parameter sitting at its bound is multiplied by ~0 — and ~72% of elite-design parameters
+sit at a bound. n3/n4 optimise in **normalised box** space with projection instead.
+
+| Entry | ZIP | Idea |
+|---|---|---|
+| **n4_fusion** | `dist/n4_fusion.zip` | box parameterisation + successive halving + ALM tail. **Candidate submission.** |
+| n3_boxproj | `dist/n3_boxproj.zip` | the parameterisation fix alone — cleanest A/B against m1 |
+| n1_halving | `dist/n1_halving.zip` | successive halving: 64 → 32 → 16 → 8 → 4 → 2 |
+| n2_alm | `dist/n2_alm.zip` | Powell–Hestenes–Rockafellar augmented Lagrangian |
+
+`box.py` now ships in every ZIP (`tools/pack.py` SHARED list).
+
+## Colab
+
+`notebooks/colab_bench.ipynb` — open in Colab, set **Runtime → GPU (A100/H100)**, run
+top to bottom. It installs deps, runs the two ground-truth checks, does a 20-min
+single-seed shakeout, then the parameterisation A/B, then the method sweep. Section 6 is
+the full 10-seed × 4 h evaluation, which you must run seed-by-seed because Colab will
+disconnect long before 40 GPU-hours.

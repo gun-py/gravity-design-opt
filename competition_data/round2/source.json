@@ -1,0 +1,29 @@
+{
+  "revision": "53c672eca12dc36ef8e3ada91fed802ab4325bab",
+  "files": {
+    "leaderboard.csv": {
+      "url": "https://raw.githubusercontent.com/artificial-scientist-lab/Learn2Design-2026/53c672eca12dc36ef8e3ada91fed802ab4325bab/competition_data/round2/leaderboard.csv",
+      "sha256": "1c7a562168232e016f598a5ac428dcf80c1e9689d4cca1ab4f58470ed744f972"
+    },
+    "runs.csv": {
+      "url": "https://raw.githubusercontent.com/artificial-scientist-lab/Learn2Design-2026/53c672eca12dc36ef8e3ada91fed802ab4325bab/competition_data/round2/runs.csv",
+      "sha256": "f6d8e8f8c627af3c3eec6de0385621b156611cf23c1c8e808253334401306640"
+    },
+    "checkpoint_summary.csv": {
+      "url": "https://raw.githubusercontent.com/artificial-scientist-lab/Learn2Design-2026/53c672eca12dc36ef8e3ada91fed802ab4325bab/competition_data/round2/checkpoint_summary.csv",
+      "sha256": "955a5b8a804db9f0d92e8f0a705b40c1d3b81d7a21b5a2dafb4b5cf1e670863c"
+    },
+    "checkpoints.csv": {
+      "url": "https://raw.githubusercontent.com/artificial-scientist-lab/Learn2Design-2026/53c672eca12dc36ef8e3ada91fed802ab4325bab/competition_data/round2/checkpoints.csv",
+      "sha256": "a2fc3de51aefe73e8c5f294ff70fe0a959d85855c23b58dd805a61a30e02b840"
+    },
+    "seeds.csv": {
+      "url": "https://raw.githubusercontent.com/artificial-scientist-lab/Learn2Design-2026/53c672eca12dc36ef8e3ada91fed802ab4325bab/competition_data/round2/seeds.csv",
+      "sha256": "89baf276b885f73bf00d2cb58670088075a134a47c6c4d41479562fbfc7c8afc"
+    },
+    "README.md": {
+      "url": "https://raw.githubusercontent.com/artificial-scientist-lab/Learn2Design-2026/53c672eca12dc36ef8e3ada91fed802ab4325bab/competition_data/round2/README.md",
+      "sha256": "6684a5814789f30e087b12224afc20a0797f893ce34951e8db9fc6214ae3c3cc"
+    }
+  }
+}

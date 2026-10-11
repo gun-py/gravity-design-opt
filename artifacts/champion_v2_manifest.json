@@ -1,0 +1,29 @@
+{
+  "baseline_archive": "artifacts/baselines/local_champion.zip",
+  "baseline_sha256": "9b55bb44832d2ee4bfcd7d75b291ff2bc56a891fc30d5ac16f21f55f475041e5",
+  "candidate_archive": "dist/champion_v2.zip",
+  "candidate_sha256": "5cc86485703bf2b81dcc126f950f137ba3fee4f51715f1cf594f8bbc8cf1da46",
+  "changed_files": [
+    "submission.py",
+    "core.py"
+  ],
+  "unchanged_files": [
+    "requirements.txt",
+    "name_gen.py",
+    "warm.py",
+    "box.py",
+    "fit.py",
+    "prior.npz"
+  ],
+  "baseline_portal_verified": false,
+  "static_validator": "passed, 0 warnings",
+  "local_execution": {
+    "topology_seed": 98591154,
+    "optimizer_seed": 1791403674,
+    "frequencies": 2,
+    "nominal_budget_seconds": 48,
+    "completed": true,
+    "feasible_candidate_count": 161,
+    "best_feasible_loss": 2.849015040122746
+  }
+}

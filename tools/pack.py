@@ -16,7 +16,10 @@ L2D = ROOT / "l2d"
 ENTRIES = ROOT / "entries"
 DIST = ROOT / "dist"
 
-SHARED = ["name_gen.py", "warm.py", "core.py", "prior.npz"]
+SHARED = ["name_gen.py", "warm.py", "core.py", "box.py", "fit.py", "prior.npz"]
+PORTFOLIO = ["name_gen.py", "warm.py", "portfolio.py", "prior.npz"]
+RELAY = ["name_gen.py", "warm.py", "relay.py", "prior.npz"]
+FSQ = ["name_gen.py", "warm.py", "relay.py", "fsq.py", "prior.npz"]
 FORBIDDEN = re.compile(r"^\s*(from|import)\s+differometor\b", re.MULTILINE)
 
 
@@ -61,7 +64,10 @@ def pack(entry, extra=None, out=DIST):
     if (n := count_algo(sub.read_text())) != 1:
         raise SystemExit(f"{sub}: {n} OptimizationAlgorithm subclasses (need 1)")
 
-    files = [sub, req] + [L2D / f for f in SHARED]
+    shared = (FSQ if entry == "n7_fsq" else RELAY if entry == "n6_relay" else
+              PORTFOLIO if entry in {"champion_repair", "n5_rescue"} else SHARED)
+    files = [sub, req] + [d / f if entry == "champion_v2" and (d / f).exists() else L2D / f
+                          for f in shared]
     if extra:
         for x in extra:
             p = d / x
@@ -73,7 +79,8 @@ def pack(entry, extra=None, out=DIST):
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         for f in files: shutil.copy(f, tmp / f.name)
-        if errs := import_smoke(tmp, ["name_gen", "warm", "core"]):
+        mods = [Path(f).stem for f in shared if f.endswith(".py")]
+        if errs := import_smoke(tmp, mods):
             raise SystemExit("\n  ".join(["import smoke:"] + errs))
 
         out.mkdir(parents=True, exist_ok=True)
@@ -93,11 +100,16 @@ def main():
     ap.add_argument("--extra", nargs="*", default=[])
     a = ap.parse_args()
     if not a.entry or a.entry == "all":
+        failures = []
         for d in sorted(ENTRIES.iterdir()):
             if d.is_dir() and (d / "submission.py").exists():
                 x = ["weights.npz"] if (d / "weights.npz").exists() else []
                 try: pack(d.name, x)
-                except SystemExit as e: print(f"FAIL {d.name}: {e}")
+                except SystemExit as e:
+                    failures.append(d.name)
+                    print(f"FAIL {d.name}: {e}")
+        if failures:
+            raise SystemExit(f"failed entries: {', '.join(failures)}")
         return
     pack(a.entry, a.extra)
 

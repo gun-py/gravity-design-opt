@@ -70,7 +70,9 @@ def _prop_bounds_vector(obj):
 
 
 def _bounded_to_unbounded(v, lo, hi):
-    u = np.clip((v - lo) / (hi - lo), _EPS, 1.0 - _EPS)
+    span = hi - lo
+    u = np.where(span > 0, (v - lo) / np.where(span > 0, span, 1.0), 0.5)
+    u = np.clip(u, _EPS, 1.0 - _EPS)
     return np.log(u / (1.0 - u))
 
 
@@ -126,3 +128,17 @@ def find_prior_path():
               os.path.join(here, "..", "prior.npz")]:
         if os.path.isfile(c): return os.path.abspath(c)
     raise FileNotFoundError("prior.npz not found")
+
+
+def donor_starts(obj, prior, rng, count, ordinal):
+    nk = _canon_pairs(obj)
+    lo, hi = _prop_bounds_vector(obj)
+    spec = obj.problem_spec.get("params", obj.problem_spec)
+    topo, size = spec.get("topology"), spec.get("size")
+    if topo is None or size is None:
+        x = _assemble_prior_draw(prior, nk, lo, hi, rng)
+    else:
+        ids = _nn_donor_indices(prior, signature(topo, int(size)), int(size), count)
+        x = (_assemble_from_donor(prior, int(ids[ordinal % len(ids)]), nk, lo, hi, rng)
+             if len(ids) else _assemble_prior_draw(prior, nk, lo, hi, rng))
+    return _bounded_to_unbounded(x, lo, hi)

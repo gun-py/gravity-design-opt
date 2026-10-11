@@ -56,10 +56,14 @@ class Tracker:
         return self.best_feasible_x if self.best_feasible_x is not None else self.best_x
 
 
-def insure_incumbent(obj, tr):
-    # single-point re-eval so the incumbent's feasibility gets its own history entry
+def insure_incumbent(obj, tr, to_x=None):
+    # single-point re-eval so the incumbent's feasibility gets its own history entry.
+    # to_x maps the tracker's coords into whatever space the Objective expects.
     x = tr.anchor()
     if x is None or obj.budget_exceeded: return
+    if to_x is not None:
+        try: x = to_x(x)
+        except Exception: return
     try:
         f = getattr(obj, "value_aux", None)
         if f is not None:
@@ -94,13 +98,13 @@ def set_penalty(obj, name):
         return False
 
 
-def run_to_wire(obj, iter_fn, tr, insure_every=200):
+def run_to_wire(obj, iter_fn, tr, insure_every=200, to_x=None):
     while not obj.budget_exceeded:
         try: iter_fn(tr.iter)
         except Exception:
-            try: insure_incumbent(obj, tr)
+            try: insure_incumbent(obj, tr, to_x)
             except Exception: pass
             continue
         if tr.iter % insure_every == 0 and tr.iter > 0:
-            insure_incumbent(obj, tr)
-    insure_incumbent(obj, tr)
+            insure_incumbent(obj, tr, to_x)
+    insure_incumbent(obj, tr, to_x)
