@@ -1,522 +1,67 @@
+# gwopt
 
-# NeurIPS 2026 Challenge: Learn2Design-2026
-[![License](https://img.shields.io/github/license/artificial-scientist-lab/Learn2Design-2026)](https://github.com/artificial-scientist-lab/Learn2Design-2026/blob/main/LICENSE)
-[![image](https://img.shields.io/pypi/pyversions/dfbench.svg)](https://pypi.python.org/pypi/dfbench)
-[![GitHub](https://img.shields.io/badge/GitHub-dfbench-3232c8?logo=github&logoColor=white)](https://github.com/artificial-scientist-lab/Differometor-Benchmark)
-[![Static Badge](https://img.shields.io/badge/Codabench-Submit-4CB2AD)](https://submit.learn2design2026.com/competitions/4/)
+optimizer for gravitational-wave detector design (NeurIPS 2026 Learn2Design challenge).
 
-> [!IMPORTANT]
-> **Detailed Round 1 evaluation data is now available.** The new
-> [Round 1 data release](competition_data/round1/) contains outcome statistics
-> for every evaluated participant, including all ten run scores, uncertainty,
-> convergence checkpoints, efficiency, and feasibility statistics.
+uses warm-starting from ~30k precomputed detector designs + population-based gradient descent with noise annealing, basin tracking, and L-BFGS polishing. there's also an SQP-based local refinement variant for tighter convergence.
 
-## A physics experiment design competition for gravitational-wave detectors
-
-<p align="center">
-Jonathan Klimesch<sup>1,2</sup>, Laurin Sefa<sup>1,3</sup>, Soham Basu<sup>1</sup>, Priya Kanagasabapathi<sup>1</sup>,<br>
-Sören Arlt<sup>1,2</sup>, Xuemei Gu<sup>4</sup>, Thomas Christie<sup>1</sup>, Colin Doumont<sup>1</sup>,<br>
-Andreas Freise<sup>5</sup>, Rana Adhikari<sup>6</sup>, Philipp Hennig<sup>1</sup>, Mario Krenn<sup>1</sup>
-</p>
-
-<p align="center">
-<sup>1</sup>Department for Computer Science, Faculty of Science, University of Tübingen, Tübingen, Germany<br>
-<sup>2</sup>Feyer, Tübingen, Germany<br>
-<sup>3</sup>Zuse School ELIZA, Darmstadt, Germany<br>
-<sup>4</sup>Institut für Festkörpertheorie und Optik, Friedrich-Schiller-Universität Jena, Jena, Germany<br>
-<sup>5</sup>Nikhef, National Institute for Subatomic Physics, Amsterdam, The Netherlands<br>
-<sup>6</sup>Institute for Quantum Information and Matter, California Institute of Technology, Pasadena, CA, USA
-</p>
-
-<p align="center">
-  <img src="learn2design2026_with_neurips.jpg" alt="Learn2Design-2026 with NeurIPS" width="720">
-</p>
-
-**Learn2Design-2026** is a NeurIPS 2026 challenge on the automated design of highly sensitive [gravitational-wave detectors](https://en.wikipedia.org/wiki/LIGO) under realistic experimental constraints.
-
-Participants are given [a search space of gravitational-wave detectors](#quasi-universal-interferometer-uifo).
-Within this search space, the task is to optimize roughly **200 continuous parameters**, such as laser powers, mirror reflectivities, grid distances, and related experimental degrees of freedom.
-
-The goal is to develop an algorithm that **maximizes detector sensitivity** while satisfying physical and experimental constraints, all within a fixed compute budget. Participants submit the algorithm itself, not only a final design. The submitted algorithms will be run by the organizers on standardized local hardware and ranked by their average performance on hidden detector topologies.
-
-The challenge provides the differentiable, JAX-based simulator **[Differometor](https://github.com/artificial-scientist-lab/Differometor)**. Its objective function is pure, JAX-compatible, and supports gradients and Hessians through automatic differentiation, enabling gradient-based, hybrid, and learning-based optimization strategies.
-
-To support algorithm development, we also provide approximately **30,000 high-quality detector designs** generated through a **360,000 GPU-hour EuroHPC exploration campaign**. These examples can be used for supervised learning, initialization, representation learning, generative modeling, benchmarking, or other exploration and optimization approaches.
-
-Algorithms will be ranked by their hidden-evaluation performance, with **EUR 25,000** in prize money (sponsored by [SPRIND](https://www.sprind.org/)).
-
-Beyond gravitational-wave detection, Learn2Design-2026 asks a broader scientific question:
-**Can AI systems discover scientific instruments that go beyond human intuition while remaining physically meaningful and experimentally constrained?**
-
-More information is available in the accepted proposal for [Learn2Design-2026](Learn2Design_details.pdf).
-
-## Round 1 leaderboard
-
-Round 1 evaluated 43 participant submissions on the same ten hidden UIFO
-topologies. The figure compares their mean best feasible loss (lower is better)
-with the seven organizer baselines; error bars show one standard error of the
-mean across the ten runs.
-
-<p align="left">
-  <img src="media/round1_leaderboard.png" alt="Learn2Design 2026 Round 1 leaderboard with participant and organizer-baseline scores" width="720">
-</p>
-
-Exact per-run results, convergence checkpoints, efficiency statistics, and
-participant reports are available in the [Round 1 evaluation data](competition_data/round1/).
-
-## Prize money
-
-- **1st prize: EUR 10,000**
-- **2nd prize: EUR 6,000**
-- **3rd prize: EUR 3,000**
-- **Two special prizes:  EUR 3,000** (judged by a committee for the most surprising or creative
-solution, and simplest strong-performing solution).
-
-Prize eligibility requires the submission of an, initally confidential, *short technical report of 2-4 pages* (see below).
-
-The prize money is sponsored by [SPRIND (Federal Agency for Disruptive Innovation / Bundesagentur für Sprunginnovationen)](https://www.sprind.org/).
-
-### Eligibility
-
-Participation is open worldwide, subject to applicable laws and the eligibility requirements of NeurIPS and SPRIND. Participants based in Russia are not eligible to receive prize money. Individuals and institutions subject to applicable sanctions, including those on the U.S. SDN list, are also ineligible.
-
-## Technical reports and post-competition publication
-
-- After the final hidden evaluation, we will invite all teams whose final submissions
-outperform the organizer-provided baseline threshold to **submit a short technical
-report of 2-4 pages** describing their method. Timely submission of this report is
-required for organizational reasons and is a prerequisite for prize eligibility,
-special-prize consideration, workshop-presentation selection, and participation
-in the joint post-competition publication.
-
-- The **technical reports** help the organizers verify and understand the submitted methods,
-prepare the workshop program, document the scientific and algorithmic lessons of
-the competition, report to the sponsor, and prepare a joint post-competition
-analysis.
-
-- Technical reports will **initially be submitted confidentially** to the organizers.
-We may request these reports before teams publicly release their own method
-descriptions, so that the organizers can coordinate the competition analysis and
-the joint publication. Reports will not be made public by the organizers without
-author approval.
-
-- Participants **retain copyright** in their own reports and methods.
-
-- Teams with eligible final submissions will be **invited to contribute to a joint
-competition-review paper** as named authors. The short technical report will serve
-as the starting point for describing each team's method in this joint analysis.
-
-
-## How it works
-
-- You submit a ZIP archive containing your optimization algorithm, dependency
-  requirements, and any supporting files through the [submission portal](https://submit.learn2design2026.com/).
-- You can submit as often as you want; for each monthly evaluation we use the last submission before that month's deadline.
-- Each evaluation runs it on 10 new held-out hidden topologies using the [standard H100 evaluation VM](docs/submission.md#evaluation-hardware).
-- Time budget per topology: exactly 4 hours of wall-clock time after `objective.start_logging()`.
-- The best loss among setups [satisfying all constraints](docs/dfbench_overview.md#power-constraints-and-aux-diagnostics) will be recorded for each of the 10 runs.
-- If a run has no constraint-satisfying setup, we use the best constraint-satisfying loss from random search on that topology instead.
-- The arithmetic mean over the 10 recorded losses is your score. Lower is better.
-- Your public score is published to the monthly leaderboard; the final evaluation uses its own private hidden topologies.
-
-A "[topology](docs/dfbench_overview.md#explanation-of-topology)" fixes the choice of optical components for an experimental ansatz; you only optimize
-the continuous parameters attached to it. These could be laser power, mirror 
-reflectivity, grid distance, etc.
-
-Your algorithm is allowed to evaluate the objective in batches via `jax.vmap` (the `obj.vmap_*` methods). The whole batch runs in a single vmapped forward pass, which saves significant time per element opposed to looping single evals. This is encouraged for population-based methods (PSO, CMA-ES, evolutionary strategies) and any algorithm that naturally evaluates multiple candidates per step.
-
-
-## Getting Started
-
-A submission's `submission.py` file defines exactly one class subclassing
-`OptimizationAlgorithm`:
-
-```python
-from dfbench import Objective, OptimizationAlgorithm
-from jaxtyping import Array, Float
-
-
-class MyAlgorithm(OptimizationAlgorithm):
-
-    algorithm_str = "my_algo"
-
-    def optimize(
-        self,
-        objective: Objective,
-        init_params: Float[Array, "..."] | None = None,
-        random_seed: int | None = None,
-        **kwargs,
-    ) -> None:
-        # 1. Configure the search space and apply random seeds
-        self.prepare(objective, unbounded=False, random_seed=random_seed)
-
-        params = init_params if init_params is not None else objective.random_params()
-
-        # 2. Warm up JIT (compilation is not counted against the budget)
-        objective.warmup_value()  # Use any other warmup_* method if desired
-
-        # 3. Start the clock
-        objective.start_logging()
-
-        # 4. Optimization loop
-        while not objective.budget_exceeded:
-            # ... YOUR update logic here, producing `params` ...
-            loss = objective.value(params)  # automatically logged
-```
-
-With `dfbench 0.3.3`, result-producing evaluation methods, raw callable getters,
-and `log_evaluation()` require `start_logging()` first. Documented problem
-context such as bounds, dimension, `problem_spec`, and `optimization_pairs`, as
-well as random sampling, pre-run setters, and Objective-provided `warmup_*()`
-methods, remain available before logging.
-
-That is the entire algorithm contract. The `Objective` handles seeding, history,
-checkpointing, and budget enforcement. You write the loop, place the class in
-`submission.py`, and package it as described in [Submitting](#submitting).
-Execution examples of such classes are provided in
-[`learn2design/scripts/`](learn2design/scripts/) and below.
-
-### 1. Test with Constrained Voyager (Fast)
-<details>
-<summary> How to execute </summary>
-
-<br>
-If you are new to the challenge, we recommend starting with the lighter `ConstrainedVoyagerProblem` (look at the script [`cvoyager_adam_gd.py`](learn2design/scripts/cvoyager_adam_gd.py) for an execution example). It uses the exact same `Objective` API and loss calculation but is a smaller, faster problem, making it great for quickly testing your optimization loop or getting a feel for the performance:
-
-```python
-from dfbench.problems import ConstrainedVoyagerProblem
-from dfbench import Objective
-from learn2design.example_algorithms import MyAlgorithm  # Replace with your own algorithm or one of the examples
-
-problem = ConstrainedVoyagerProblem()
-objective = Objective(problem, max_time=2*60)  # 2 Minutes of optimization
-
-optimizer = MyAlgorithm()
-optimizer.optimize(objective)
-```
-</details>
-
-### 2. Scale up to UIFO (The Competition Target)
-<details>
-<summary> How to execute </summary>
-<br>
-The `UIFOProblem` is the actual target of this competition. Once your algorithm runs successfully on the smaller problem, scale it up to the Quasi-Universal Interferometer (UIFO).
-
-To see an example of execution on the full problem, look at scripts like [`uifo_random_search.py`](learn2design/scripts/uifo_random_search.py) or [`uifo_adam_gd.py`](learn2design/scripts/uifo_adam_gd.py). The execution looks like this:
-
-```python
-from dfbench.problems import UIFOProblem
-from dfbench import Objective
-from learn2design.example_algorithms import MyAlgorithm  # Replace with your own algorithm or one of the examples
-
-problem = UIFOProblem(topology_seed=42)  # Random topology with seed 42
-objective = Objective(problem, max_time=10*60)  # 10 Minutes of optimization
-
-optimizer = MyAlgorithm()
-optimizer.optimize(objective)
-```
-</details>
-
-<br>
-
-You can find most functionality of the Objective API at [`docs/dfbench_overview.md`](docs/dfbench_overview.md). For a simple explanation of the UIFO loss, see [What objective function is optimized for UIFO?](docs/dfbench/FAQ.md#what-objective-function-is-optimized-for-uifo) or open the [interactive sensitivity loss explorer](docs/sensitivity_loss_explorer.html). In particular, be aware that constrained problems let you [change the penalty function](docs/dfbench_overview.md#power-constraints-and-aux-diagnostics) used during optimization.
-
-## Install
-
-Requires Python 3.11 or newer.
+## setup
 
 ```bash
-git clone https://github.com/artificial-scientist-lab/Learn2Design-2026
-cd Learn2Design-2026
 pip install -e .
 ```
 
-For GPU support matching the official evaluation environment, use CUDA 13.
-CUDA 12 remains available as an optional local-development extra:
-```bash
-pip install -e ".[cuda13]" # or ".[cuda12]"
-```
+needs `dfbench>=0.3.3` (the competition simulator) and `optax`.
 
-Via uv:
-```bash
-uv sync --extra cuda13
-```
+## quick start
 
-This pulls in [`dfbench`](https://github.com/artificial-scientist-lab/Differometor-Benchmark) (v0.3.3, the benchmark
-framework). `dfbench` in turn uses
-[`differometor`](https://github.com/artificial-scientist-lab/Differometor), the JAX-based
-interferometer simulator.
-
-Smoke-test one UIFO evaluation (may take a few minutes to JIT-compile) with [smoke_test.py](learn2design/scripts/smoke_test.py):
-```bash
-python learn2design/scripts/smoke_test.py
-```
-
-
-## Quasi-Universal Interferometer (UIFO)
-
-The given search space of gravitational-wave detectors is visualized below. It consists of a grid structure which can hold different combinations of five building blocks. The beam splitter and directional beam splitter blocks can fill the grid centers (in any 90° rotation). The laser, squeezer, and detector blocks can fill the boundary cells, whereas the detector block can only be placed once.
-
-Each component has parameters that can be optimized within certain
-[ranges](docs/dfbench_overview.md#bounds).
-
-For the topology string format, component-code mapping, and ways to instantiate
-UIFO topologies directly, see [Explanation of "Topology"](docs/dfbench_overview.md#explanation-of-topology).
-
-The goal is to find algorithms that work well on any UIFO topology sampled from this search space; two example topologies are visualized in the figure below. Each evaluation runs on its own 10 hidden topologies.
-
-<p align="center">
-  <img src="media/UIFO.png" alt="Quasi-Universal Interferometer (UIFO)" width="720">
-</p>
-
-
-## Dataset
-
-The precomputed UIFO design corpus is available in [`dataset/`](dataset/).
-It contains [`dataset.h5`](dataset/dataset.h5),
-a compact HDF5 dataset with 29,650 pure-broadband optimized setups. Each entry
-stores a topology string, bounded parameter vector, saved loss, sensitivity
-curve, power data, complexity, and metadata such as `unique_hash`. The folder
-also includes a standalone Plotly HTML swarmplot for browsing losses and topology
-groups interactively.
-
-Start with the dataset-specific guide in [`dataset/README.md`](dataset/README.md).
-It documents the HDF5 layout, efficient lazy slicing of parameter and power
-pools, and includes runnable examples for loading, evaluating, and visualizing
-an entry with `UIFOProblem` and Differometor.
-
-```bash
-python dataset/examples/load_entry.py --index 0
-python dataset/examples/evaluate_entry.py --index 0
-python dataset/examples/visualize_entry.py --index 0
-```
-
-The dataset was distilled and curated from the much larger [GraviTune Dataset](https://github.com/artificial-scientist-lab/GraviTune-Dataset).
-
-
-## Repository layout
-
-The repository is organized around a small number of entry points:
-
-| Path | Purpose |
-|---|---|
-| `learn2design/` | Package code, including example algorithms and runnable scripts. |
-| `dataset/` | Precomputed UIFO design corpus, dataset README, and loading/evaluation examples. |
-| `docs/` | Competition docs plus the bundled `dfbench` reference pages. |
-| `pyproject.toml` | Package metadata and dependency definitions. |
-
-<details>
-<summary>Show a more detailed layout</summary>
-
-```text
-learn2design/
-├── example_algorithms/            # Reference implementations
-│   ├── __init__.py
-│   ├── adam_gd.py                 # Standard Adam optimizer
-│   ├── na_adam_gd.py              # Adam with decaying Gaussian noise
-│   ├── optax_sgdm.py              # SGD with momentum (Optax)
-│   ├── scipy_bfgs.py              # BFGS (SciPy)
-│   ├── lbfgs_gd.py                # L-BFGS (Optax)
-│   ├── random_search.py           # Uniform random search
-│   └── pycma_cmaes.py             # CMA-ES (pycma)
-└── scripts/                       # Minimal runnable entry points
-    ├── smoke_test.py              # Single-eval smoke test
-    ├── uifo_adam_gd.py            # UIFO + AdamGD
-    ├── uifo_na_adam_gd.py         # UIFO + NAAdamGD
-    ├── uifo_optax_sgdm.py         # UIFO + OptaxSGDM
-    ├── uifo_scipy_bfgs.py         # UIFO + BFGS
-    ├── uifo_lbfgs_gd.py           # UIFO + LBFGSGD
-    ├── uifo_random_search.py     # UIFO + RandomSearch
-    ├── uifo_pycma_cmaes.py       # UIFO + PyCMACMAES
-    └── cvoyager_adam_gd.py       # ConstrainedVoyager + AdamGD (lightweight)
-
-docs/
-├── dfbench_overview.md  # Overview of the functionality you need
-├── submission.md        # Submission rules
-├── scoring.md           # Scoring and leaderboard details
-├── FAQ.md               # Competition FAQ
-└── dfbench/             # dfbench 0.3.3 reference pages
-    ├── Architecture-Overview.md
-    ├── Objective-API-Reference.md
-    ├── Problems.md
-    ├── Algorithms.md
-    ├── Implementing-a-New-Algorithm.md   # step-by-step guide for new algorithms
-    ├── Utilities-and-Helpers.md
-    └── FAQ.md
-
-dataset/
-├── dataset.h5
-├── dataset_dashboard.html
-├── README.md
-└── examples/            # Loading, evaluation, and visualization examples
-    ├── dataset_utils.py
-    ├── load_entry.py
-    ├── evaluate_entry.py
-    └── visualize_entry.py
-```
-
-</details>
-
-
-## Baselines
-
-The plot shows the mean raw best-so-far loss and its SEM over the four-hour
-budget for the seven organizer baselines rerun under the standardized Round 1
-evaluation procedure. The table reports the corresponding official mean best
-feasible loss used for scoring.
-
-<p align="left">
-  <img src="media/round1_baseline_loss_histories.png" alt="Round 1 organizer baseline loss histories" width="720">
-</p>
-
-The table below summarizes the example baselines included in [`learn2design/example_algorithms`](learn2design/example_algorithms).
-
-> [!TIP]
-> For a host of other baselines, take a look at [dfbench/algorithms](https://github.com/artificial-scientist-lab/Differometor-Benchmark/tree/main/src/dfbench/algorithms)
-
-Rows are ordered by displayed mean loss; ties in the rounded values are broken
-by displayed SEM and then alphabetically.
-
-**Benchmark setup for all results below:** four hours per topology on the same
-ten Round 1 topologies, using 1× NVIDIA H100 SXM5 GPU (80 GB HBM3), 16 vCPUs,
-and 128 GiB RAM per run. All baselines use the same evaluation, logging, and
-physical-feasibility checks as participant submissions.
-
-Because this repository depends on `dfbench` as an external package, it does
-not contain the `dfbench` source tree itself. The links below therefore open
-the matching documented algorithm section in [`docs/dfbench/Algorithms.md`](docs/dfbench/Algorithms.md), using the exact class names and variants from that documentation.
-
-A loss of zero means that the optimizer has discovered the best known human designed gravitational wave detector (within the same technical resources, such as arm lengths). **Losses below zero are possible and [expected](https://journals.aps.org/prx/abstract/10.1103/PhysRevX.15.021012)**.
-
-
-| Rank & name | General type* | Detailed implementation | Average loss ± SEM | Link to example |
-|---|---|---|---|---|
-| 1. `NAAdamGD` | Gradient-based | Adam optimizer enhanced with decaying Gaussian noise to escape local optima | 0.504 ± 0.091 | [NAAdamGD](learn2design/example_algorithms/na_adam_gd.py) |
-| 2. `OptaxSGDM` | Gradient-based | Stochastic Gradient Descent (SGD) with momentum, implemented via Optax | 0.540 ± 0.054 | [OptaxSGDM](learn2design/example_algorithms/optax_sgdm.py) |
-| 3. `AdamGD` | Gradient-based | Standard Adam optimizer utilizing gradient clipping for stability | 0.639 ± 0.124 | [AdamGD](learn2design/example_algorithms/adam_gd.py) |
-| 4. `BFGS` | Gradient-based | BFGS quasi-Newton method (SciPy) for gradient-based optimization | 1.777 ± 0.089 | [BFGS](learn2design/example_algorithms/scipy_bfgs.py) |
-| 5. `LBFGSGD` | Gradient-based | Limited-memory BFGS (Optax) featuring a custom JIT-compiled logging loop | 2.918 ± 0.140 | [LBFGSGD](learn2design/example_algorithms/lbfgs_gd.py) |
-| 6. `PyCMACMAES` | Evolutionary | Vanilla CMA-ES (pycma) searching in the unit cube, mapped to physical bounds at evaluation | 3.554 ± 0.242 | [PyCMACMAES](learn2design/example_algorithms/pycma_cmaes.py) |
-| 7. `RandomSearch` | Global Search | Uniform random sampling baseline evaluated in batches within bounds | 4.749 ± 0.038 | [RandomSearch](learn2design/example_algorithms/random_search.py) |
-
-
-*General types follow `dfbench`'s coarse `AlgorithmType` system:
-gradient-based, evolutionary, surrogate-based, global_search, derivative_free and generative.
-
-
-## Submitting
-
-Upload a ZIP archive to the [submission portal](https://submit.learn2design2026.com/)
-containing these two mandatory files at its root:
-
-```text
-submission.zip
-├── submission.py       # Defines exactly one dfbench.OptimizationAlgorithm subclass
-├── requirements.txt    # PEP 508 dependencies, one per line
-└── ...                 # Optional modules, weights, or other supporting files
-```
-
-`submission.py` must define exactly one Python class that subclasses
-`dfbench.OptimizationAlgorithm`. The evaluator calls:
+the `submission/` directory is a self-contained competition entry you can zip and upload directly. or use the library:
 
 ```python
-MyAlgorithm.optimize(...)
+from gwopt import Prior, build_starts, find_prior, Tracker
+
+prior = Prior(find_prior())
+starts = build_starts(objective, k=36, prior=prior, rng_seed=42)
 ```
 
-`requirements.txt` must list all required Python packages using
-[PEP 508](https://peps.python.org/pep-0508/) syntax, with one dependency per
-line:
+the main algorithms live in:
+- `gwopt/relay.py` - multi-track relay optimizer with rescue/polish cycles
+- `gwopt/local_refine.py` - SQP trust-region local search (extends relay)  
+- `gwopt/portfolio.py` - portfolio optimizer with basin formation
 
-```text
-<package1>==1.2.3
-<package2>==4.5.6
+## structure
+
+```
+gwopt/              core library
+  topology.py       UIFO topology parsing
+  warmstart.py      prior data loading + donor warm-starts
+  optimizer.py      tracker, adam step, utilities
+  relay.py          relay optimizer
+  local_refine.py   SQP local refinement
+  portfolio.py      portfolio optimizer
+  box.py            normalized-box projection helpers
+  batch.py          auto batch size detection
+  prior.npz         precomputed prior (~30k designs)
+
+submission/         self-contained competition entry
+tests/              basic tests
 ```
 
-You may include Python modules, pretrained neural-network weights, or other
-supporting files. The evaluation script runs from the root of the extracted
-archive, so access bundled files using relative paths. See the
-[submission rules](docs/submission.md) for the complete format, dependency
-policy, time budget, and evaluation procedure.
+## how it works
 
+1. **warm-start**: loads prior designs from a 360k GPU-hour exploration campaign. matches topology signatures via hamming distance to find nearest donors.
 
-## Timeline
+2. **screening**: evaluates ~36 candidates (donors + prior draws + sobol points), picks the top ~19.
 
-| Date | Event |
-|---|---|
-| 09.07.2026 | Start of competition |
-| 10.08.2026, 12:00 UTC | [Submission platform](https://submit.learn2design2026.com/) opens |
-| 26.08.2026, AoE | First submission deadline -- [Round 1 data release](competition_data/round1/) |
-| 12.09.2026, AoE | Second submission deadline |
-| 29.09.2026, AoE | Third submission deadline |
-| 15.10.2026, AoE | Final submission deadline |
-| Before workshop | Private leaderboard announced |
+3. **gradient descent**: runs batched adam with decaying noise injection. protects the best candidate from noise (anchor).
 
-The first three submission deadlines (**26 August 2026**, **12 September 2026**, and **29 September 2026**) are used only for the **public leaderboard**. These evaluations allow you to see how well your solution performs before the final submission deadline. Participation in these intermediate evaluations is **optional**. You do not need to submit a solution by any of these three deadlines to remain eligible for a prize.
+4. **basin formation**: clusters around the 3-6 best solutions, spawns local copies with small perturbations.
 
-The competition winners will be determined **only based on submissions received by the final deadline: 15 October 2026, Anywhere on Earth (AoE)**. In other words, even if you register on 15 October 2026 and make your first and only submission that same day, you are still fully eligible to win the competition and receive a prize.
+5. **rescue**: periodically replaces stagnant tracks with fresh donors or mutated archive solutions.
 
+6. **polish**: L-BFGS refinement on the best feasible solutions in bounded unit space.
 
-## Contact
+7. **local SQP** (optional): trust-region SQP with BFGS hessian updates, constraint jacobians, and feasibility restoration.
 
-Whenever possible, we recommend communicating with the organizers via GitHub issues so that other participants with similar questions can also see the solutions. If your question cannot be discussed publicly, please contact [Jonathan](mailto:jonathan@feyer.ai), [Laurin](mailto:laurin.sefa@student.uni-tuebingen.de), [Priya](mailto:shanmugapriya.kanagasabapathi@uni-tuebingen.de), [Soham](mailto:soham.basu@uni-tuebingen.de), or [Mario](mailto:mario.krenn@uni-tuebingen.de).
+## license
 
-## Scientific Advisory Board
-
-The Scientific Advisory Board (SAB) provides independent advice on unexpected or disputed situations during the competition, including suspected cheating and questions about submission validity. It also reviews entries to identify creative, surprising, or technically innovative approaches that may not rank among the top-scoring solutions, and recommends the recipients of two special prizes of €3,000 each.
-
-![Scientific Advisory Board: Max Dax, Anna Green, Haixing Miao, Stephen Wright, and Rose Yu.](media/01_warm_editorial.png)
-
-- **Max Dax**  
-  ELLIS Institute Tübingen & Max Planck Institute for Intelligent Systems · [Website](https://max-dax.github.io/)  
-  Max develops probabilistic machine-learning methods for scientific discovery, including generative models and simulation-based inference. His work includes rapid and reliable analysis of gravitational-wave signals.
-
-- **Anna Green**  
-  Maastricht University & Nikhef · [Website](https://cris.maastrichtuniversity.nl/en/persons/anna-green/)  
-  Anna works on precision interferometry and optical modelling for gravitational-wave detectors. She is a scientific co-lead of Finesse 3, a simulation tool for understanding and designing interferometers.
-
-- **Haixing Miao**  
-  Tsinghua University · [Website](https://www.phys.tsinghua.edu.cn/phyen/info/1069/1544.htm)  
-  Haixing studies gravitational-wave instrumentation and high-precision quantum measurement. His research explores ways to reduce quantum noise and improve the sensitivity of future detectors.
-
-- **Stephen Wright**  
-  University of Wisconsin–Madison · [Website](https://pages.cs.wisc.edu/~swright/)  
-  Stephen develops the theory, algorithms, and software of numerical optimization, particularly for problems with continuous variables. His work connects optimization with machine learning and data analysis.
-
-- **Rose Yu**  
-  University of California San Diego · [Website](https://roseyu.com/)  
-  Rose develops machine-learning methods for complex spatiotemporal systems and scientific discovery. Her research includes physics-guided deep learning, Bayesian optimization, and active learning.
-
-## Resources
-
-- **Website:** <https://www.learn2design2026.com/>
-- **Submission portal:** <https://submit.learn2design2026.com/>
-- **Repository:** <https://github.com/artificial-scientist-lab/Learn2Design-2026>
-- **Issues / questions:** <https://github.com/artificial-scientist-lab/Learn2Design-2026/issues>
-- **Dataset guide:** [`dataset/README.md`](dataset/README.md)
-- **Simulator:** [`differometor`](https://pypi.org/project/differometor/)
-- **Benchmark framework:** [`dfbench`](docs/dfbench/Architecture-Overview.md)
-- **Group:** [Artificial Scientist Lab](https://www.artificial-scientist-lab.ai/)
-
-
-
-> [!TIP]
-> * [docs/dfbench_overview](docs/dfbench_overview.md) gives a brief overview of all the functionality provided by the Objective and the [dfbench](https://github.com/artificial-scientist-lab/Differometor-Benchmark) package in general.
-> * Check out [Submission](docs/submission.md) and [Scoring](docs/scoring.md) for further details on the submission system and scoring criteria we use in this competition, respectively.
-> * Take a look at the [FAQs](docs/FAQ.md) which might help answer any further questions regarding Learn2Design-2026.
-> * [docs/dfbench](docs/dfbench/) includes a comprehensive documentation of the __dfbench__ package.  
-
-
-## Citing
-
-```bibtex
-@misc{learn2design2026,
-  title  = {Learn2Design 2026: A Physics Experiment Design Competition for Gravitational-Wave Detectors},
-  author = {Klimesch, Jonathan and Sefa, Laurin and Basu, Soham and Kanagasabapathi, Priya and Arlt, S{\"o}ren and Gu, Xuemei and Christie, Thomas and Doumont, Colin and Freise, Andreas and Adhikari, Rana and Hennig, Philipp and Krenn, Mario},
-  year   = {2026},
-  url    = {https://github.com/artificial-scientist-lab/Learn2Design-2026}
-}
-```
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+MIT
