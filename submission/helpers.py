@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 import jax
 import jax.numpy as jnp
@@ -9,11 +11,11 @@ def clip_norm(arr, max_norm):
     return arr * jnp.minimum(1.0, max_norm / (norm + 1e-12))
 
 
-def linear_anneal(progress, start_val, end_val, ramp_frac):
+def cosine_anneal(progress, start_val, end_val, ramp_frac):
     if ramp_frac <= 0:
         return float(end_val)
     t = min(1.0, max(0.0, progress / ramp_frac))
-    return float(start_val + (end_val - start_val) * t)
+    return float(end_val + (start_val - end_val) * 0.5 * (1 + np.cos(np.pi * t)))
 
 
 def make_adam_step(lr, grad_clip=1.0, noise_cap=0.25):
@@ -38,6 +40,22 @@ def make_adam_step(lr, grad_clip=1.0, noise_cap=0.25):
 def reset_adam_rows(state, indices):
     indices = jnp.asarray(indices, dtype=jnp.int32)
     return jax.tree_util.tree_map(lambda leaf: leaf.at[indices].set(0), state)
+
+
+def param_groups(pairs):
+    out = {}
+    for i, (name, _) in enumerate(pairs):
+        key = re.sub(r'sus$', '', name)
+        out.setdefault(key, []).append(i)
+    return list(out.values())
+
+
+def crossover(a, b, blocks, rng):
+    x = a.copy()
+    take = rng.choice(len(blocks), max(1, len(blocks) // 4), replace=False)
+    for j in take:
+        x[blocks[j]] = b[blocks[j]]
+    return x
 
 
 def select_basins(feasible_x, feasible_loss, fallback_x, fallback_loss,
@@ -77,6 +95,7 @@ class Tracker:
         self.best_feasible_x = None
         self.iter = 0
         self.stall = 0
+        self.archive = []
 
     def update(self, points, losses, feasible):
         losses = np.asarray(losses)
@@ -93,7 +112,22 @@ class Tracker:
         if float(feasible_losses[best_feas]) < self.best_feasible_loss:
             self.best_feasible_loss = float(feasible_losses[best_feas])
             self.best_feasible_x = np.array(points[best_feas])
+        for i in range(len(losses)):
+            if feasible[i] and np.isfinite(losses[i]):
+                self._archive_update(np.array(points[i]), float(losses[i]))
         self.iter += 1
+
+    def _archive_update(self, x, loss):
+        u = np.asarray(jax.nn.sigmoid(x))
+        for j, (ax, al) in enumerate(self.archive):
+            au = np.asarray(jax.nn.sigmoid(ax))
+            if np.sqrt(np.mean((u - au) ** 2)) < 1e-3:
+                if loss < al:
+                    self.archive[j] = (x.copy(), loss)
+                return
+        self.archive.append((x.copy(), loss))
+        self.archive.sort(key=lambda a: a[1])
+        del self.archive[24:]
 
     def anchor(self):
         if self.best_feasible_x is not None:

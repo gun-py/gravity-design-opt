@@ -16,6 +16,13 @@ def linear_anneal(progress, start_val, end_val, ramp_frac):
     return float(start_val + (end_val - start_val) * t)
 
 
+def cosine_anneal(progress, start_val, end_val, ramp_frac):
+    if ramp_frac <= 0:
+        return float(end_val)
+    t = min(1.0, max(0.0, progress / ramp_frac))
+    return float(end_val + (start_val - end_val) * 0.5 * (1 + np.cos(np.pi * t)))
+
+
 def make_adam_step(lr, grad_clip=1.0, noise_cap=0.25):
     opt = optax.adam(lr)
 

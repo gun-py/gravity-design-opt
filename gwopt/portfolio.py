@@ -212,7 +212,8 @@ class Portfolio:
         return t
 
     def noise_level(self):
-        return .3 * max(0.0, 1 - self.progress() / .5)
+        t = min(1.0, self.progress() / .5)
+        return .3 * 0.5 * (1 + np.cos(np.pi * t))
 
     def descend(self, stop_frac, quiet=False):
         while not self.obj.budget_exceeded and self.progress() < stop_frac:

@@ -67,6 +67,15 @@ def test_linear_anneal():
     assert linear_anneal(0.25, 1.0, 0.0, 0.5) == 0.5
 
 
+def test_cosine_anneal():
+    from gwopt.optimizer import cosine_anneal
+
+    assert cosine_anneal(0.0, 1.0, 0.0, 0.5) == 1.0
+    assert abs(cosine_anneal(0.5, 1.0, 0.0, 0.5)) < 1e-10
+    mid = cosine_anneal(0.25, 1.0, 0.0, 0.5)
+    assert 0.4 < mid < 0.6
+
+
 def test_prior_loading():
     from gwopt.warmstart import Prior, find_prior
 

@@ -380,8 +380,9 @@ class Relay:
                 count = jnp.stack([t.count for t in part])
                 keys = jnp.stack([t.key for t in part])
                 anch = jnp.asarray([t.anchor for t in part])
+                t = min(1.0, float(self.obj.budget_progress_fraction) / .5)
                 sigma = (0.0 if quiet else
-                         .3 * max(0.0, 1 - float(self.obj.budget_progress_fraction) / .5))
+                         .3 * 0.5 * (1 + np.cos(np.pi * t)))
 
                 p, m, v, count, keys = gradient_step(
                     p, m, v, count, keys, kind, anch, grad,
